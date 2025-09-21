@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArtisanAI - GenAI-Powered Marketplace for Local Artisans</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to bottom, #faf7f4, #f0edeb);
+            color: #333;
+            scroll-behavior: smooth;
+        }
+        .heading-font {
+            font-family: 'Playfair Display', serif;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .artisan-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .search-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 100px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        .nav-blur {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        .product-image {
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .cart-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+        }
+        .language-hindi {
+            display: none;
+        }
+        .language-active .language-english {
+            display: none;
+        }
+        .language-active .language-hindi {
+            display: block;
+        }
+        .profile-section {
+            display: none;
+        }
+        .profile-active .profile-section {
+            display: block;
+        }
+        .profile-active .main-content {
+            display: none;
+        }
+        .ai-thinking {
+            display: none;
+        }
+        .scale-in {
+            animation: scaleIn 0.5s ease forwards;
+        }
+        @keyframes scaleIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .artisan-img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .voice-pulse {
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .ai-feature-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+        .ai-feature-card:hover {
+            border-left-color: #667eea;
+            transform: translateX(5px);
+        }
+        .market-bar {
+            transition: width 1.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Navigation Bar -->
+    <nav class="nav-blur shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center">
+                <span class="text-2xl font-bold text-indigo-600 heading-font"><i class="fas fa-robot mr-2"></i>ArtisanAI</span>
+            </div>
+            <div class="hidden md:flex space-x-8">
+                <a href="#home" class="text-gray-700 hover:text-indigo-600 font-medium transition-colors">Home</a>
+                <a href="#artisans" class="text-gray-700 hover:text-indigo-600 font-medium transition-colors">Artisans</a>
+                <a href="#finder" class="text-gray-700 hover:text-indigo-600 font-medium transition-colors">AI Finder</a>
+                <a href="#features" class="text-gray-700 hover:text-indigo-600 font-medium transition-colors">AI Features</a>
+                <a href="#" id="profileLink" class="text-gray-700 hover:text-indigo-600 font-medium transition-colors">My Profile</a>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button id="languageToggle" class="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium transition-colors hover:bg-indigo-200">
+                    <span class="language-english">हिंदी</span>
+                    <span class="language-hindi">English</span>
+                </button>
+                <button class="md:hidden text-gray-700" id="mobileMenuButton">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div class="md:hidden hidden bg-white py-2 px-4 shadow-lg" id="mobileMenu">
+            <a href="#home" class="block py-2 text-gray-700 hover:text-indigo-600 transition-colors">Home</a>
+            <a href="#artisans" class="block py-2 text-gray-700 hover:text-indigo-600 transition-colors">Artisans</a>
+            <a href="#finder" class="block py-2 text-gray-700 hover:text-indigo-600 transition-colors">AI Finder</a>
+            <a href="#features" class="block py-2 text-gray-700 hover:text-indigo-600 transition-colors">AI Features</a>
+            <a href="#" id="mobileProfileLink" class="block py-2 text-gray-700 hover:text-indigo-600 transition-colors">My Profile</a>
+        </div>
+    </nav>
+
+    <!-- Cart Notification -->
+    <div class="cart-notification" id="cartNotification">
+        <i class="fas fa-check-circle mr-2"></i>
+        <span class="language-english">Item added to cart!</span>
+        <span class="language-hindi">आइटम कार्ट में जोड़ा गया!</span>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Hero Section -->
+        <section id="home" class="py-16 md:py-24 gradient-bg text-white">
+            <div class="container mx-auto px-4">
+                <div class="max-w-4xl mx-auto text-center">
+                    <h1 class="text-4xl md:text-5xl font-bold mb-6 heading-font language-english">Bringing Local Art to the World</h1>
+                    <h1 class="text-4xl md:text-5xl font-bold mb-6 heading-font language-hindi">स्थानीय कला को दुनिया तक पहुंचाना</h1>
+                    <p class="text-xl mb-10 opacity-90 language-english">Discover unique handmade creations from local artisans with the power of AI</p>
+                    <p class="text-xl mb-10 opacity-90 language-hindi">AI की शक्ति से स्थानीय कारीगरों की अद्वितीय हस्तनिर्मित कृतियों की खोज करें</p>
+                    
+                    <!-- Search Bar -->
+                    <div class="search-container flex mb-10 p-1">
+                        <input type="text" id="searchInput" placeholder="Search for handmade pottery, wooden toys, jewelry..." 
+                            class="flex-grow px-6 py-4 rounded-l-full focus:outline-none text-gray-700">
+                        <button id="voiceSearch" class="bg-indigo-100 text-indigo-600 w-14 h-14 flex items-center justify-center hover:bg-indigo-200 transition-colors">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                        <button id="searchButton" class="bg-indigo-600 text-white rounded-r-full px-6 py-4 font-medium hover:bg-indigo-700 transition-colors">
+                            <span class="language-english">Search</span>
+                            <span class="language-hindi">खोजें</span>
+                        </button>
+                    </div>
+                    
+                    <button id="recommendButton" class="px-8 py-4 bg-white text-indigo-600 rounded-full font-bold shadow-lg hover:bg-gray-100 transition-colors mb-4">
+                        <span class="language-english"><i class="fas fa-star mr-2"></i>Recommended for Me</span>
+                        <span class="language-hindi"><i class="fas fa-star mr-2"></i>मेरे लिए सिफारिशें</span>
+                    </button>
+                    
+                    <p class="text-sm opacity-80 language-english">Powered by GenAI technology • Natural language search • Personalized recommendations</p>
+                    <p class="text-sm opacity-80 language-hindi">जेनAI तकनीक द्वारा संचालित • प्राकृतिक भाषा खोज • व्यक्तिगत सिफारिशें</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Artisans -->
+        <section class="py-16 bg-white">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center mb-4 heading-font language-english">Featured Artisans</h2>
+                <h2 class="text-3xl font-bold text-center mb-4 heading-font language-hindi">फ़ीचर्ड आर्टिसन</h2>
+                <p class="text-center text-gray-600 mb-12 max-w-2xl mx-auto language-english">
+                    Discover talented artisans and their unique creations
+                </p>
+                <p class="text-center text-gray-600 mb-12 max-w-2xl mx-auto language-hindi">
+                    प्रतिभाशाली कारीगरों और उनकी अनूठी कृतियों की खोज करें
+                </p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="featuredArtisans">
+                    <!-- Artisan cards will be generated by JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Product Finder -->
+        <section id="finder" class="py-16 bg-gray-50">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center mb-4 heading-font language-english">AI-Powered Product Finder</h2>
+                <h2 class="text-3xl font-bold text-center mb-4 heading-font language-hindi">AI-संचालित उत्पाद खोजक</h2>
+                <p class="text-center text-gray-600 mb-12 max-w-2xl mx-auto language-english">
+                    Describe what you're looking for in natural language and our AI will find the perfect artisan products for you
+                </p>
+                <p class="text-center text-gray-600 mb-12 max-w-2xl mx-auto language-hindi">
+                    बताएं कि आप क्या ढूंढ रहे हैं और हमारी AI आपके लिए सही कारीगर उत्पाद ढूंढेगी
+                </p>
+                
+                <div class="max-w-4xl mx-auto">
+                    <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+                        <div class="flex">
+                            <input type="text" id="aiInput" placeholder="I'm looking for handmade pottery with blue glaze..." 
+                                class="flex-grow px-6 py-4 border-0 rounded-l-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50">
+                            <button id="aiSearch" class="bg-indigo-600 text-white px-8 py-4 rounded-r-2xl font-medium hover:bg-indigo-700 transition-colors">
+                                <span class="language-english">Find</span>
+                                <span class="language-hindi">खोजें</span>
+                            </button>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-2 language-english">Try: "handmade wooden toys for kids" or "traditional blue pottery"</p>
+                        <p class="text-sm text-gray-500 mt-2 language-hindi">आज़माएं: "बच्चों के लिए हस्तनिर्मित लकड़ी के खिलौने" या "पारंपरिक नीले मिट्टी के बर्तन"</p>
+                    </div>
+                    
+                    <!-- AI Thinking Animation -->
+                    <div id="aiThinking" class="ai-thinking bg-white rounded-2xl shadow-lg p-8 text-center mb-8">
+                        <div class="flex justify-center mb-4">
+                            <div class="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-brain text-4xl text-indigo-600"></i>
+                            </div>
+                        </div>
+                        <p class="text-xl font-medium text-gray-700 mb-2 language-english">ArtisanAI is thinking...</p>
+                        <p class="text-xl font-medium text-gray-700 mb-2 language-hindi">ArtisanAI सोच रहा है...</p>
+                        <p class="text-gray-600 language-english">Analyzing your request with our generative AI models</p>
+                        <p class="text-gray-600 language-hindi">आपके अनुरोध का हमारे जेनरेटिव AI मॉडल के साथ विश्लेषण कर रहा है</p>
+                        <div class="mt-6 flex justify-center">
+                            <div class="flex space-x-2">
+                                <div class="w-3 h-3 bg-indigo-400 rounded-full animate-bounce"></div>
+                                <div class="w-3 h-3 bg-indigo-500 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                                <div class="w-3 h-3 bg-indigo-600 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- AI Results -->
+                    <div id="aiResults" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Results will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works -->
+        <section id="features" class="py-16 bg-white">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center mb-4 heading-font language-english">How ArtisanAI Works</h2>
+                <h2 class="text-3xl font-bold text-center mb-4 heading-font language-hindi">ArtisanAI कैसे काम करता है</h2>
+                <p class="text-center text-gray-600 mb-12 max-w-2xl mx-auto language-english">
+                    Our GenAI technology makes it easy to discover unique handmade products
+                </p>
+                <p class="text-center text-gray-600 mb-12 max-w-2xl mx-auto language-hindi">
+                    हमारी जेनAI तकनीक अद्वितीय हस्तनिर्मित उत्पादों की खोज करना आसान बनाती है
+                </p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="bg-white p-6 rounded-2xl shadow-lg text-center ai-feature-card">
+                        <div class="w-16 h-16 mx-auto bg-indigo-100 rounded-full flex items-center justify-center mb-4">
+                            <i class="fas fa-comment-alt text-2xl text-indigo-600"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 language-english">Describe What You Want</h3>
+                        <h3 class="text-xl font-bold mb-2 language-hindi">बताएं कि आप क्या चाहते हैं</h3>
+                        <p class="text-gray-600 language-english">Use natural language to describe the product you're looking for</p>
+                        <p class="text-gray-600 language-hindi">जिस उत्पाद की आप तलाश कर रहे हैं उसे describe करने के लिए प्राकृतिक भाषा का use करें</p>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-2xl shadow-lg text-center ai-feature-card">
+                        <div class="w-16 h-16 mx-auto bg-indigo-100 rounded-full flex items-center justify-center mb-4">
+                            <i class="fas fa-brain text-2xl text-indigo-600"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 language-english">AI Finds Matches</h3>
+                        <h3 class="text-xl font-bold mb-2 language-hindi">AI matches ढूंढता है</h3>
+                        <p class="text-gray-600 language-english">Our GenAI analyzes your request and finds perfect matches</p>
+                        <p class="text-gray-600 language-hindi">हमारी जेनAI आपके request का analysis करती है और perfect matches ढूंढती है</p>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-2xl shadow-lg text-center ai-feature-card">
+                        <div class="w-16 h-16 mx-auto bg-indigo-100 rounded-full flex items-center justify-center mb-4">
+                            <i class="fas fa-heart text-2xl text-indigo-600"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 language-english">Connect with Artisans</h3>
+                        <h3 class="text-xl font-bold mb-2 language-hindi">कारीगरों से जुड़ें</h3>
+                        <p class="text-gray-600 language-english">Discover unique products and connect directly with the artisans</p>
+                        <p class="text-gray-600 language-hindi">अनूठे उत्पादों की खोज करें और सीधे कारीगरों से जुड़ें</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Advanced AI Features -->
+        <section class="py-16 bg-gray-50">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center mb-4 heading-font language-english">Advanced AI Features</h2>
+                <h2 class="text-3xl font-bold text-center mb-4 heading-font language-hindi">उन्नत AI सुविधाएँ</h2>
+                <p class="text-center text-gray-600 mb-12 max-w-2xl mx-auto language-english">
+                    See how our AI goes beyond basic search to understand your needs
+                </p>
+                <p class="text-center text-gray-600 mb-12 max-w-2xl mx-auto language-hindi">
+                    देखें कि हमारी AI आपकी आवश्यकताओं को समझने के लिए बुनियादी खोज से कैसे आगे बढ़ती है
+                </p>
+                
+                <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                            <i class="fas fa-camera text-blue-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold language-english">Visual Search</h3>
+                            <h3 class="text-xl font-bold language-hindi">विजुअल खोज</h3>
+                            <p class="text-gray-600 language-english">Upload an image to find similar artisan products</p>
+                            <p class="text-gray-600 language-hindi">समान कारीगर उत्पादों को खोजने के लिए एक छवि अपलोड करें</p>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <input type="file" id="imageSearch" class="hidden" accept="image/*">
+                        <label for="imageSearch" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg cursor-pointer">
+                            <span class="language-english">Upload Image</span>
+                            <span class="language-hindi">छवि अपलोड करें</span>
+                        </label>
+                        <button class="px-4 py-2 bg-blue-600 text-white rounded-lg">
+                            <span class="language-english">Find Similar</span>
+                            <span class="language-hindi">समान खोजें</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                            <i class="fas fa-chart-line text-green-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold language-english">AI-Powered Insights</h3>
+                            <h3 class="text-xl font-bold language-hindi">AI-संचालित अंतर्दृष्टि</h3>
+                            <p class="text-gray-600 language-english">Our AI analyzes market trends to help artisans price their products</p>
+                            <p class="text-gray-600 language-hindi">हमारी AI कारीगरों को अपने उत्पादों की कीमत निर्धारित करने में मदद करने के लिए बाजार के रुझानों का विश्लेषण करती है</p>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="flex justify-between mb-2">
+                            <span class="language-english">Current Market Demand</span>
+                            <span class="language-hindi">वर्तमान बाजार मांग</span>
+                            <span class="font-bold">High</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-green-600 h-2 rounded-full market-bar" style="width: 0%" id="marketDemandBar"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mr-4">
+                            <i class="fas fa-tshirt text-purple-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold language-english">Style Recommendations</h3>
+                            <h3 class="text-xl font-bold language-hindi">शैली सिफारिशें</h3>
+                            <p class="text-gray-600 language-english">Our AI suggests products based on your style preferences</p>
+                            <p class="text-gray-600 language-hindi">हमारी AI आपकी शैली preferences के आधार पर उत्पादों का सुझाव देती है</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg style-preference" data-style="traditional">
+                            <span class="language-english">Traditional</span>
+                            <span class="language-hindi">पारंपरिक</span>
+                        </button>
+                        <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg style-preference" data-style="modern">
+                            <span class="language-english">Modern</span>
+                            <span class="language-hindi">आधुनिक</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Artisan Stories -->
+        <section id="artisans" class="py-16 bg-white">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center mb-4 heading-font language-english">Meet Our Artisans</h2>
+                <h2 class="text-3xl font-bold text-center mb-4 heading-font language-hindi">हमारे कारीगरों से मिलें</h2>
+                <p class="text-center text-gray-600 mb-12 max-w-2xl mx-auto language-english">
+                    Each artisan has a unique story and tradition behind their craft
+                </p>
+                <p class="text-center text-gray-600 mb-12 max-w-2xl mx-auto language-hindi">
+                    प्रत्येक कारीगर के पास अपनी कला के पीछे एक अनूठी कहानी और परंपरा है
+                </p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <!-- Artisan Story 1 -->
+                    <div class="artisan-card card-hover">
+                        <div class="p-6">
+                            <div class="flex items-center mb-6">
+                                <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&q=80" 
+                                     alt="Priya Sharma" class="artisan-img">
+                                <div class="ml-4">
+                                    <h3 class="text-xl font-bold">Priya Sharma</h3>
+                                    <p class="text-gray-600"><i class="fas fa-map-marker-alt mr-2"></i>Jaipur, India</p>
+                                </div>
+                            </div>
+                            <p class="text-gray-700 mb-6 language-english">
+                                Priya comes from a long line of potters specializing in blue pottery, a tradition dating back to the Mughal era. 
+                                She combines ancient techniques with modern designs to create unique pieces that honor her heritage while appealing to contemporary tastes.
+                            </p>
+                            <p class="text-gray-700 mb-6 language-hindi">
+                                प्रिया मुगल काल की परंपरा वाली नीली मिट्टी के बर्तनों में माहिर कुम्हारों की लंबी लाइन से आती है।
+                                वह अपनी विरासत का सम्मान करते हुए समकालीन स्वादों को आकर्षित करने वाले अनूठे टुकड़े बनाने के लिए प्राचीन तकनीकों को आधुनिक डिजाइनों के साथ जोड़ती है।
+                            </p>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <p class="font-medium language-english">Specialty</p>
+                                    <p class="font-medium language-hindi">विशेषता</p>
+                                    <p class="text-indigo-600 language-english">Blue Pottery</p>
+                                    <p class="text-indigo-600 language-hindi">नीले मिट्टी के बर्तन</p>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <p class="font-medium language-english">Experience</p>
+                                    <p class="font-medium language-hindi">अनुभव</p>
+                                    <p class="text-indigo-600">15 years</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Artisan Story 2 -->
+                    <div class="artisan-card card-hover">
+                        <div class="p-6">
+                            <div class="flex items-center mb-6">
+                                <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&q=80" 
+                                     alt="Rajesh Kumar" class="artisan-img">
+                                <div class="ml-4">
+                                    <h3 class="text-xl font-bold">Rajesh Kumar</h3>
+                                    <p class="text-gray-600"><i class="fas fa-map-marker-alt mr-2"></i>Varanasi, India</p>
+                                </div>
+                            </div>
+                            <p class="text-gray-700 mb-6 language-english">
+                                Rajesh is a master weaver specializing in Banarasi silk sarees, a craft passed down through five generations of his family. 
+                                Each saree takes weeks to create, featuring intricate zari work and traditional motifs that tell stories of Indian culture.
+                            </p>
+                            <p class="text-gray-700 mb-6 language-hindi">
+                                राजेश बनारसी रेशमी साड़ियों में माहिर एक मास्टर बुनकर हैं, एक शिल्प जो उनके परिवार की पांच पीढ़ियों से चला आ रहा है।
+                                प्रत्येक साड़ी को बनाने में हफ्तों लगते हैं, जिसमें जटिल जरी काम और पारंपरिक रूपांकन होते हैं जो भारतीय संस्कृति की कहानियाँ बताते हैं।
+                            </p>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <p class="font-medium language-english">Specialty</p>
+                                    <p class="font-medium language-hindi">विशेषता</p>
+                                    <p class="text-indigo-600 language-english">Silk Weaving</p>
+                                    <p class="text-indigo-600 language-hindi">रेशम बुनाई</p>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <p class="font-medium language-english">Experience</p>
+                                    <p class="font-medium language-hindi">अनुभव</p>
+                                    <p class="text-indigo-600">22 years</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-12">
+                    <button class="px-6 py-3 bg-indigo-600 text-white rounded-full font-medium hover:bg-indigo-700 transition-colors">
+                        <span class="language-english">View All Artisans</span>
+                        <span class="language-hindi">सभी कारीगरों को देखें</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Profile Section -->
+    <div class="profile-section container mx-auto px-4 py-16">
+        <h2 class="text-3xl font-bold text-center mb-12 heading-font language-english">My Profile</h2>
+        <h2 class="text-3xl font-bold text-center mb-12 heading-font language-hindi">मेरी प्रोफाइल</h2>
+        
+        <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="md:col-span-1">
+                <div class="bg-white rounded-2xl shadow-lg p-6 text-center">
+                    <div class="w-32 h-32 mx-auto rounded-full bg-gradient-to-r from-purple-400 to-purple-600 flex items-center justify-center border-4 border-white shadow-lg mb-4">
+                        <i class="fas fa-user-circle text-7xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Rahul Sharma</h3>
+                    <p class="text-gray-600 mb-4">New Delhi, India</p>
+                    <div class="mb-4">
+                        <p class="font-medium language-english">Member Since</p>
+                        <p class="font-medium language-hindi">सदस्य Since</p>
+                        <p class="text-gray-600">January 2023</p>
+                    </div>
+                    <button class="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium w-full mb-2">
+                        <span class="language-english">Edit Profile</span>
+                        <span class="language-hindi">प्रोफाइल Edit करें</span>
+                    </button>
+                    <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium w-full">
+                        <span class="language-english">Log Out</span>
+                        <span class="language-hindi">Log Out</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="md:col-span-2">
+                <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                    <h3 class="text-xl font-bold mb-4 language-english">Recent Activity</h3>
+                    <h3 class="text-xl font-bold mb-4 language-hindi">हाल की गतिविधि</h3>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center p-4 bg-gray-50 rounded-lg">
+                            <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-search text-indigo-600"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium language-english">Searched for "handmade pottery"</p>
+                                <p class="font-medium language-hindi">"हस्तनिर्मित मिट्टी के बर्तन" खोजे गए</p>
+                                <p class="text-gray-600 text-sm">2 hours ago</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center p-4 bg-gray-50 rounded-lg">
+                            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-shopping-cart text-green-600"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium language-english">Added Blue Glazed Vase to cart</p>
+                                <p class="font-medium language-hindi">ब्लू ग्लेज़्ड वेस कार्ट में जोड़ा</p>
+                                <p class="text-gray-600 text-sm">1 day ago</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center p-4 bg-gray-50 rounded-lg">
+                            <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-heart text-purple-600"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium language-english">Liked Traditional Banarasi Saree</p>
+                                <p class="font-medium language-hindi">पारंपरिक बनारसी साड़ी पसंद की</p>
+                                <p class="text-gray-600 text-sm">2 days ago</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <h3 class="text-xl font-bold mb-4 language-english">My Favorites</h3>
+                    <h3 class="text-xl font-bold mb-4 language-hindi">मेरी पसंदीदा</h3>
+                    
+                    <div class="grid grid-cols-1 gap-4">
+                        <div class="flex p-4 bg-gray-50 rounded-lg">
+                            <div class="w-16 h-16 bg-gradient-to-r from-blue-400 to-blue-600 rounded-lg flex items-center justify-center mr-4">
+                                <i class="fas fa-vase text-white text-2xl"></i>
+                            </div>
+                            <div class="flex-grow">
+                                <p class="font-medium">Blue Glazed Vase</p>
+                                <p class="text-gray-600 text-sm">By Priya Sharma</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-bold text-indigo-600">₹2,500</p>
+                                <button class="text-red-500 text-sm"><i class="fas fa-heart"></i></button>
+                            </div>
+                        </div>
+                        
+                        <div class="flex p-4 bg-gray-50 rounded-lg">
+                            <div class="w-16 h-16 bg-gradient-to-r from-amber-400 to-amber-600 rounded-lg flex items-center justify-center mr-4">
+                                <i class="fas fa-tshirt text-white text-2xl"></i>
+                            </div>
+                            <div class="flex-grow">
+                                <p class="font-medium">Traditional Banarasi Saree</p>
+                                <p class="text-gray-600 text-sm">By Rajesh Kumar</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-bold text-indigo-600">₹15,000</p>
+                                <button class="text-red-500 text-sm"><i class="fas fa-heart"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12 mt-16">
+        <div class="container mx-auto px-4">
+            <div class="text-center">
+                <h3 class="text-2xl font-bold mb-4 heading-font"><i class="fas fa-robot mr-2"></i>ArtisanAI</h3>
+                <p class="mb-6 max-w-2xl mx-auto language-english">
+                    Empowering local artisans with AI technology to bring their unique creations to a global audience.
+                </p>
+                <p class="mb-6 max-w-2xl mx-auto language-hindi">
+                    स्थानीय कारीगरों को AI तकनीक से सशक्त बनाना ताकि उनकी अनूठी रचनाओं को वैश्विक दर्शकों तक पहुंचाया जा सके।
+                </p>
+                <div class="flex justify-center space-x-4 mb-6">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors"><i class="fab fa-facebook-f text-lg"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors"><i class="fab fa-instagram text-lg"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors"><i class="fab fa-twitter text-lg"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors"><i class="fab fa-pinterest text-lg"></i></a>
+                </div>
+                <p class="text-gray-400">Made with ❤️ for Hackathon</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Dummy data for artisans and products
+        const artisans = [
+            {
+                id: 1,
+                name: "Priya Sharma",
+                location: "Jaipur, India",
+                specialty: "Blue Pottery",
+                story: "Specializing in traditional blue pottery with a modern twist.",
+                products: [
+                    { name: "Blue Glazed Vase", price: "₹2,500", image: "vase", description: "Handcrafted vase with traditional blue glaze" },
+                    { name: "Hand-painted Bowl Set", price: "₹1,800", image: "bowl", description: "Set of 4 hand-painted ceramic bowls" }
+                ]
+            },
+            {
+                id: 2,
+                name: "Rajesh Kumar",
+                location: "Varanasi, India",
+                specialty: "Silk Weaving",
+                story: "Creating beautiful Banarasi silk sarees for over two decades.",
+                products: [
+                    { name: "Traditional Banarasi Saree", price: "₹15,000", image: "saree", description: "Authentic Banarasi silk saree with zari work" },
+                    { name: "Silk Scarves", price: "₹2,200", image: "scarf", description: "Handwoven silk scarves with traditional patterns" }
+                ]
+            },
+            {
+                id: 3,
+                name: "Anita Patel",
+                location: "Gujarat, India",
+                specialty: "Embroidery",
+                story: "Expert in traditional Gujarati embroidery techniques.",
+                products: [
+                    { name: "Embroidered Bag", price: "₹1,200", image: "bag", description: "Hand-embroidered cloth bag with mirror work" },
+                    { name: "Traditional Wall Hanging", price: "₹3,500", image: "hanging", description: "Colorful embroidered wall decoration" }
+                ]
+            },
+            {
+                id: 4,
+                name: "Vikram Singh",
+                location: "Moradabad, India",
+                specialty: "Brass Work",
+                story: "Creating intricate brass items using traditional techniques.",
+                products: [
+                    { name: "Brass Decorative Plate", price: "₹3,200", image: "default", description: "Handcrafted brass plate with traditional engravings" },
+                    { name: "Brass Candle Holders", price: "₹1,800", image: "default", description: "Set of 2 intricately designed brass candle holders" }
+                ]
+            }
+        ];
+
+        // Image mapping
+        const imageMap = {
+            'vase': '<div class="product-image bg-gradient-to-r from-blue-400 to-blue-600"><i class="fas fa-vase text-5xl text-white opacity-90"></i></div>',
+            'bowl': '<div class="product-image bg-gradient-to-r from-teal-400 to-teal-600"><i class="fas fa-bowl-food text-5xl text-white opacity-90"></i></div>',
+            'saree': '<div class="product-image bg-gradient-to-r from-pink-400 to-pink-600"><i class="fas fa-tshirt text-5xl text-white opacity-90"></i></div>',
+            'scarf': '<div class="product-image bg-gradient-to-r from-purple-400 to-purple-600"><i class="fas fa-scarf text-5xl text-white opacity-90"></i></div>',
+            'bag': '<div class="product-image bg-gradient-to-r from-amber-400 to-amber-600"><i class="fas fa-shopping-bag text-5xl text-white opacity-90"></i></div>',
+            'hanging': '<div class="product-image bg-gradient-to-r from-red-400 to-red-600"><i class="fas fa-image text-5xl text-white opacity-90"></i></div>',
+            'default': '<div class="product-image bg-gradient-to-r from-gray-400 to-gray-600"><i class="fas fa-image text-5xl text-white opacity-90"></i></div>'
+        };
+
+        // DOM Elements
+        const featuredArtisansSection = document.getElementById('featuredArtisans');
+        const aiThinkingSection = document.getElementById('aiThinking');
+        const aiResultsSection = document.getElementById('aiResults');
+        const languageToggle = document.getElementById('languageToggle');
+        const mobileMenuButton = document.getElementById('mobileMenuButton');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const voiceSearchButton = document.getElementById('voiceSearch');
+        const searchButton = document.getElementById('searchButton');
+        const recommendButton = document.getElementById('recommendButton');
+        const aiSearchButton = document.getElementById('aiSearch');
+        const profileLink = document.getElementById('profileLink');
+        const mobileProfileLink = document.getElementById('mobileProfileLink');
+        const cartNotification = document.getElementById('cartNotification');
+        const marketDemandBar = document.getElementById('marketDemandBar');
+
+        // Initialize the page with featured artisans
+        function initFeaturedArtisans() {
+            featuredArtisansSection.innerHTML = '';
+            artisans.forEach(artisan => {
+                const card = document.createElement('div');
+                card.className = 'artisan-card card-hover scale-in';
+                card.innerHTML = `
+                    ${imageMap[artisan.products[0].image] || imageMap['default']}
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">${artisan.name}</h3>
+                        <p class="text-gray-600 mb-3"><i class="fas fa-map-marker-alt mr-2"></i>${artisan.location}</p>
+                        <p class="text-gray-700 mb-4">${artisan.story}</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-indigo-600 font-bold">${artisan.products[0].price}</span>
+                            <button class="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium view-products" data-artisan-id="${artisan.id}">
+                                <span class="language-english">View Products</span>
+                                <span class="language-hindi">उत्पाद देखें</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                featuredArtisansSection.appendChild(card);
+            });
+
+            // Add event listeners to view products buttons
+            document.querySelectorAll('.view-products').forEach(button => {
+                button.addEventListener('click', function() {
+                    const artisanId = this.getAttribute('data-artisan-id');
+                    showArtisanProducts(artisanId);
+                });
+            });
+        }
+
+        // Show AI Thinking animation
+        function showAIThinking() {
+            const query = document.getElementById('aiInput').value;
+            if (!query) {
+                alert('Please enter what you are looking for');
+                return;
+            }
+
+            aiThinkingSection.style.display = 'block';
+            aiResultsSection.innerHTML = '';
+            
+            // Simulate AI processing time
+            setTimeout(() => {
+                aiThinkingSection.style.display = 'none';
+                showAIResults(query);
+            }, 2500);
+        }
+
+        // Display AI results based on query
+        function showAIResults(query) {
+            aiResultsSection.innerHTML = '';
+            
+            // Filter artisans based on query (simple simulation)
+            const filteredArtisans = artisans.filter(artisan => 
+                artisan.specialty.toLowerCase().includes(query.toLowerCase()) || 
+                artisan.products.some(product => 
+                    product.name.toLowerCase().includes(query.toLowerCase()) ||
+                    product.description.toLowerCase().includes(query.toLowerCase())
+                )
+            );
+            
+            if (filteredArtisans.length === 0) {
+                aiResultsSection.innerHTML = `
+                    <div class="col-span-full text-center py-8">
+                        <i class="fas fa-search text-4xl text-gray-400 mb-4"></i>
+                        <p class="text-xl text-gray-600 language-english">No products found for "${query}"</p>
+                        <p class="text-xl text-gray-600 language-hindi">"${query}" के लिए कोई उत्पाद नहीं मिला</p>
+                        <p class="text-gray-500 language-english">Try searching for something else</p>
+                        <p class="text-gray-500 language-hindi">कुछ और खोजें</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Show products from filtered artisans
+            filteredArtisans.forEach(artisan => {
+                artisan.products.forEach(product => {
+                    const card = document.createElement('div');
+                    card.className = 'artisan-card card-hover scale-in';
+                    card.innerHTML = `
+                        ${imageMap[product.image] || imageMap['default']}
+                        <div class="p-4">
+                            <h3 class="text-lg font-bold mb-2">${product.name}</h3>
+                            <p class="text-gray-600 mb-2">By ${artisan.name}</p>
+                            <p class="text-gray-700 text-sm mb-4">${product.description}</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-indigo-600 font-bold">${product.price}</span>
+                                <button class="px-3 py-1 bg-indigo-600 text-white rounded-full text-sm add-to-cart" data-product="${product.name}">
+                                    <span class="language-english">Add to Cart</span>
+                                    <span class="language-hindi">कार्ट में जोड़ें</span>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    aiResultsSection.appendChild(card);
+                });
+            });
+
+            // Add event listeners to Add to Cart buttons
+            document.querySelectorAll('.add-to-cart').forEach(button => {
+                button.addEventListener('click', function() {
+                    const productName = this.getAttribute('data-product');
+                    showCartNotification(productName);
+                });
+            });
+        }
+
+        // Show artisan products
+        function showArtisanProducts(artisanId) {
+            const artisan = artisans.find(a => a.id == artisanId);
+            if (!artisan) return;
+            
+            // Scroll to AI finder section
+            document.getElementById('finder').scrollIntoView({ behavior: 'smooth' });
+            
+            // Set the search input value
+            document.getElementById('aiInput').value = artisan.specialty;
+            
+            // Show results for this artisan
+            showAIThinking();
+        }
+
+        // Generate recommended products
+        function generateRecommendations() {
+            // Clear previous results
+            aiThinkingSection.style.display = 'none';
+            aiResultsSection.innerHTML = '';
+            
+            // Show recommendations title
+            const title = document.createElement('h3');
+            title.className = 'text-2xl font-bold mb-6 col-span-full text-center language-english';
+            title.textContent = 'Recommended For You';
+            aiResultsSection.appendChild(title);
+            
+            const hindiTitle = document.createElement('h3');
+            hindiTitle.className = 'text-2xl font-bold mb-6 col-span-full text-center language-hindi';
+            hindiTitle.textContent = 'आपके लिए सिफारिशें';
+            aiResultsSection.appendChild(hindiTitle);
+            
+            // Show products from all artisans
+            artisans.forEach(artisan => {
+                artisan.products.forEach(product => {
+                    const card = document.createElement('div');
+                    card.className = 'artisan-card card-hover scale-in';
+                    card.innerHTML = `
+                        ${imageMap[product.image] || imageMap['default']}
+                        <div class="p-4">
+                            <h3 class="text-lg font-bold mb-2">${product.name}</h3>
+                            <p class="text-gray-600 mb-2">By ${artisan.name}</p>
+                            <p class="text-gray-700 text-sm mb-4">${product.description}</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-indigo-600 font-bold">${product.price}</span>
+                                <button class="px-3 py-1 bg-indigo-600 text-white rounded-full text-sm add-to-cart" data-product="${product.name}">
+                                    <span class="language-english">Add to Cart</span>
+                                    <span class="language-hindi">कार्ट में जोड़ें</span>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    aiResultsSection.appendChild(card);
+                });
+            });
+
+            // Add event listeners to Add to Cart buttons
+            document.querySelectorAll('.add-to-cart').forEach(button => {
+                button.addEventListener('click', function() {
+                    const productName = this.getAttribute('data-product');
+                    showCartNotification(productName);
+                });
+            });
+        }
+
+        // Show cart notification
+        function showCartNotification(productName) {
+            cartNotification.style.display = 'flex';
+            setTimeout(() => {
+                cartNotification.style.display = 'none';
+            }, 3000);
+        }
+
+        // Perform search
+        function performSearch() {
+            const query = document.getElementById('searchInput').value;
+            if (!query) {
+                alert('Please enter a search term');
+                return;
+            }
+            
+            // Scroll to AI finder section
+            document.getElementById('finder').scrollIntoView({ behavior: 'smooth' });
+            
+            // Set the search input value
+            document.getElementById('aiInput').value = query;
+            
+            // Show results for this query
+            showAIThinking();
+        }
+
+        // Toggle language between English and Hindi
+        languageToggle.addEventListener('click', () => {
+            document.body.classList.toggle('language-active');
+        });
+
+        // Toggle mobile menu
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Toggle profile section
+        profileLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.body.classList.toggle('profile-active');
+        });
+
+        mobileProfileLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.body.classList.toggle('profile-active');
+            mobileMenu.classList.add('hidden');
+        });
+
+        // Voice search functionality
+        voiceSearchButton.addEventListener('click', () => {
+            if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+                alert('Speech recognition is not supported in this browser. Try Chrome or Edge.');
+                return;
+            }
+            
+            const searchInput = document.getElementById('searchInput');
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = 'en-US';
+            
+            recognition.start();
+            voiceSearchButton.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+            voiceSearchButton.classList.add('voice-pulse');
+            
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                searchInput.value = transcript;
+                voiceSearchButton.innerHTML = '<i class="fas fa-microphone"></i>';
+                voiceSearchButton.classList.remove('voice-pulse');
+            };
+            
+            recognition.onerror = (event) => {
+                voiceSearchButton.innerHTML = '<i class="fas fa-microphone"></i>';
+                voiceSearchButton.classList.remove('voice-pulse');
+                
+                if (event.error === 'not-allowed') {
+                    alert('Microphone access is blocked. Please allow microphone access in your browser settings.');
+                } else {
+                    alert('Speech recognition error. Please try again.');
+                }
+            };
+            
+            recognition.onend = () => {
+                voiceSearchButton.innerHTML = '<i class="fas fa-microphone"></i>';
+                voiceSearchButton.classList.remove('voice-pulse');
+            };
+        });
+
+        // Event listeners for search buttons
+        searchButton.addEventListener('click', performSearch);
+        recommendButton.addEventListener('click', generateRecommendations);
+        aiSearchButton.addEventListener('click', showAIThinking);
+
+        // Allow pressing Enter in search inputs
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+        
+        document.getElementById('aiInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                showAIThinking();
+            }
+        });
+
+        // Style preference buttons
+        document.querySelectorAll('.style-preference').forEach(button => {
+            button.addEventListener('click', function() {
+                const style = this.getAttribute('data-style');
+                document.getElementById('aiInput').value = style + " style artisan products";
+                showAIThinking();
+            });
+        });
+
+        // Initialize the page
+        initFeaturedArtisans();
+
+        // Animate market demand bar
+        setTimeout(() => {
+            marketDemandBar.style.width = '75%';
+        }, 500);
+    </script>
+</body>
+</html>
